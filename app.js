@@ -6,7 +6,7 @@ const { createBot, createProvider, createFlow, addKeyword } = require('@bot-what
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
-const hostname = 'localhost'
+const hostname = '35.169.9.170'
 const PORT = 3030
 var environment = process.env.NODE_ENV;
 
