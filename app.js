@@ -1,16 +1,19 @@
 const express = require('express')
+const cors = require('cors');
 const http = require('http')
 
 const { createBot, createProvider, createFlow, addKeyword } = require('@bot-whatsapp/bot')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
-const hostname = '10.209.23.135'
+const hostname = 'localhost'
+const PORT = 3030
 var environment = process.env.NODE_ENV;
 
 const app = express()
 var bodyParser = require('body-parser')
 
+app.use(cors());
 app.use(bodyParser.json())
 app.use(express.json())
 
@@ -20,7 +23,7 @@ app.use(express.json())
 const flowSecundario = addKeyword(['2', 'siguiente','next']).addAnswer(
     ['📄 Es todo por hoy! Esperamos que disfrutes la experiencia con PetPlate.'], 
     null, 
-    null, )
+    null, );
 
 
 const flowThanks = addKeyword(['thanks', 'thank', 'ok', 'okay', 'okey', 'gracias']).addAnswer(
@@ -30,7 +33,7 @@ const flowThanks = addKeyword(['thanks', 'thank', 'ok', 'okay', 'okey', 'gracias
     null,
     null,
     [flowSecundario]
-)
+);
 
 const flowCorreo = addKeyword('@').addAnswer(
     [
@@ -41,7 +44,7 @@ const flowCorreo = addKeyword('@').addAnswer(
     null,
     null,
     [flowSecundario,flowThanks]
-)
+);
 
 const flowSub = addKeyword(['sub', 'suscribirse']).addAnswer(
     [
@@ -55,7 +58,7 @@ const flowSub = addKeyword(['sub', 'suscribirse']).addAnswer(
         console.log('👉 Telefono: ', ctx.from)
         if (!ctx.body.includes('@')) return fallBack()},    
     [flowSecundario, flowCorreo]
-)
+);
 
 const flowInfo = addKeyword(['info', 'informacion']).addAnswer(
     [
@@ -67,7 +70,7 @@ const flowInfo = addKeyword(['info', 'informacion']).addAnswer(
     null,
     null,
     [flowSecundario, flowThanks]
-)
+);
 
 
 const flowWeb_Page = addKeyword(['web']).addAnswer(
@@ -75,7 +78,7 @@ const flowWeb_Page = addKeyword(['web']).addAnswer(
     null,
     null,
     [flowSecundario, flowThanks]
-)
+);
 const flowMenu = addKeyword(['menu', 'menu principal', 'volver', 'menú', 'Menu'])
     .addAnswer( ['De aquí en adelante haremos varias pruebas para obtener el chatbot deseado 🫡',
                 '👉 *sub* para suscribirte a las notificaciones del alimentador de tu(s) peludito(s)',
@@ -85,16 +88,16 @@ const flowMenu = addKeyword(['menu', 'menu principal', 'volver', 'menú', 'Menu'
         null,
         null,
         [flowSub, flowInfo, flowThanks, flowWeb_Page]
-    )
+    );
 
 const flowPrincipal = addKeyword(['hola', 'ole', 'alo', 'oe', 'hi', 'hello'])
     .addAnswer(['Hola, bienvenido al de *Chatbot* IoT 2023', '\n Escribe *menu* para desplegar el menu principal.']
-    )
+    );
 
 const main = async () => {
-    const adapterDB = new MockAdapter()
-    const adapterFlow = createFlow([flowPrincipal,flowMenu])
-    const adapterProvider = createProvider(BaileysProvider)
+    const adapterDB = new MockAdapter();
+    const adapterFlow = createFlow([flowPrincipal,flowMenu]);
+    const adapterProvider = createProvider(BaileysProvider);
 
     createBot({
         flow: adapterFlow,
@@ -109,38 +112,39 @@ const main = async () => {
     app.post('/send_alarm', async (req, res) => {
         const waitTime = 3000; 
         req.setTimeout(waitTime); 
-        const phone = req.body.phoneNumber
-        const petName = req.body.petName
-        const fullName = req.body.fullName
-        console.log(phone)
-        console.log(petName)
-        const numberID = '57' + phone + '@s.whatsapp.net'
-        console.log(numberID)
-        await adapterProvider.sendText(numberID, 'Oye, ' + fullName + ' se agota el alimento de tu peludito 🐕 ' + petName +'! 🥺')
-        res.send({ data: 'alarma enviada a ' + phone})
+        const phone = req.body.phoneNumber;
+        const petName = req.body.petName;
+        const fullName = req.body.fullName;
+        console.log(phone);
+        console.log(petName);
+        const numberID = '57' + phone + '@s.whatsapp.net';
+        console.log(numberID);
+        await adapterProvider.sendText(numberID, 'Oye, ' + fullName + ' se agota el alimento de tu peludito 🐕 ' + petName +'! 🥺');
+        res.send({ data: 'alarma enviada a ' + phone});
     })
 
     app.post('/send_pesoA', async (req, res) => {
         const waitTime = 3000;
         req.setTimeout(waitTime); 
-        const phone = req.body.phoneNumber
-        const peso = req.body.peso
-        console.log(phone)
-        console.log(peso)
-        const numberID = '57' + phone + '@s.whatsapp.net'
-        console.log(numberID)
-        await adapterProvider.sendText(numberID, 'Hola, la cantidad de peso en tu alimentador es: ' + peso + ' kg 🐕')
-        res.send({ data: 'peso actual enviado a ' + phone})
+        const phone = req.body.phoneNumber;
+        const peso = req.body.peso;
+        console.log(phone);
+        console.log(peso);
+        const numberID = '57' + phone + '@s.whatsapp.net';
+        console.log(numberID);
+        await adapterProvider.sendText(numberID, 'Hola, la cantidad de peso en tu alimentador es: ' + peso + ' kg 🐕');
+        res.send({ data: 'peso actual enviado a ' + phone});
     })
     // handle the request timeout
     app.use((err, req, res, next) => {
+        console.log('Error en peticion');
         if (err && err.code === 'ECONNABORTED') {
             // handle timeout error
             throw new Error('Request timed out');
         }
         next();
     });
-    const PORT = 3030
+
     app.listen(PORT, hostname, function(){ console.log(`http://${hostname}:${PORT}`)})
 }
 
