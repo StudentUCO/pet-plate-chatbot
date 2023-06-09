@@ -1,6 +1,8 @@
 .env
-node_modules
+/node_modules/
 baileys.log
 core.class.log
 README.md
 bot.qr.png
+/bot_sessions/
+/.idea/
