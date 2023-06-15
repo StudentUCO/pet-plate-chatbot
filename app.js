@@ -1,22 +1,29 @@
+/********************************** *
+ *                                  *  
+ *            CHATBOT               * 
+ *                                  * 
+ * ******************************** */ 
+
+/* Se crean las constantes requeridas para el funcionamiento del chatbot.*/
 const express = require('express')
 const http = require('http')
+const app = express()
+var bodyParser = require('body-parser')
+const hostname = 'localhost'
+var environment = process.env.NODE_ENV;
 
+/* Configuraciones propias de la librería del chatbot */
 const { createBot, createProvider, createFlow, addKeyword } = require('@bot-whatsapp/bot')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
-const hostname = '10.209.23.135'
-var environment = process.env.NODE_ENV;
-
-const app = express()
-var bodyParser = require('body-parser')
-
+/* Se usa un parser para la recepción de información tipo JSON que llega desde el BACKEND 2 */
 app.use(bodyParser.json())
+/* Se usa express para la recepción de información desde BACKEND 2 por peticiones */
 app.use(express.json())
 
 
-//if(environment !== 'production'){require('longjohn')}
-
+/* Se crea los flujos Inicial, primarios y secundario del chatbot */
 const flowSecundario = addKeyword(['2', 'siguiente','next']).addAnswer(
     ['📄 Es todo por hoy! Esperamos que disfrutes la experiencia con PetPlate.'], 
     null, 
@@ -77,8 +84,7 @@ const flowWeb_Page = addKeyword(['web']).addAnswer(
     [flowSecundario, flowThanks]
 )
 const flowMenu = addKeyword(['menu', 'menu principal', 'volver', 'menú', 'Menu'])
-    .addAnswer( ['De aquí en adelante haremos varias pruebas para obtener el chatbot deseado 🫡',
-                '👉 *sub* para suscribirte a las notificaciones del alimentador de tu(s) peludito(s)',
+    .addAnswer( ['De aquí en adelante haremos varias pruebas para obtener el chatbot deseado 🫡'
                 '👉 *info*  para conocer información acerca del PetPlate',
                 '👉 *web* para recibir el link de la web_page de PetPlate',
                 '👉 *menu* si te equivocas escribiendo la palabra'],
@@ -102,9 +108,7 @@ const main = async () => {
         database: adapterDB,
     })
 
-    /**
-     * Enviar mensaje con metodos propios del provider del bot
-     */
+    /* Recepción de peticiones post con miras a enviar una alarma y enviar el estado de alimentación de la mascota */ 
     
     app.post('/send_alarm', async (req, res) => {
         const waitTime = 3000; 
@@ -132,10 +136,9 @@ const main = async () => {
         await adapterProvider.sendText(numberID, 'Hola, la cantidad de peso en tu alimentador es: ' + peso + ' kg 🐕')
         res.send({ data: 'peso actual enviado a ' + phone})
     })
-    // handle the request timeout
+    /* Manejo del Request Time Out */
     app.use((err, req, res, next) => {
         if (err && err.code === 'ECONNABORTED') {
-            // handle timeout error
             throw new Error('Request timed out');
         }
         next();
