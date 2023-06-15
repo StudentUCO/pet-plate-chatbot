@@ -9,7 +9,8 @@
     },
     "keywords": [],
     "dependencies": {
-        "@adiwajshing/baileys": "4.4.0",
+        "@adiwajshing/baileys": "github:WhiskeySockets/Baileys",
+        "@adiwajshing/keyed-db": "^0.2.4",
         "@bot-whatsapp/bot": "latest",
         "@bot-whatsapp/cli": "latest",
         "@bot-whatsapp/database": "latest",

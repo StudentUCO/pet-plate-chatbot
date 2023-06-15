@@ -1,25 +1,20 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const http = require('http');
-
 const {createBot, createProvider, createFlow, addKeyword} = require('@bot-whatsapp/bot')
+const QRPortal = require('@bot-whatsapp/portal')
 const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
 const hostname = 'localhost'
+// const hostname = '192.168.1.7'
 const PORT = 3030
-var environment = process.env.NODE_ENV;
-
 const app = express()
 var bodyParser = require('body-parser')
 
 app.use(cors());
 app.use(bodyParser.json())
 app.use(express.json())
-
-
-//if(environment !== 'production'){require('longjohn')}
 
 const flowSecundario = addKeyword(['2', 'siguiente', 'next']).addAnswer(
     ['📄 Es todo por hoy! Esperamos que disfrutes la experiencia con PetPlate.'],
@@ -142,13 +137,13 @@ const main = async () => {
         console.log(peso)
         const numberID = '57' + phone + '@s.whatsapp.net'
         console.log(numberID)
-        if (status == 'WARNING') {
+        if (status === 'WARNING') {
             await adapterProvider.sendText(numberID, 'Hola, ' + fullName + ' tu mascota: ' + petName + ' no se alimentó correctamente, solo se le proporcionó: ' + portion + ' kg de alimento')
         }
-        if (status == 'ERROR') {
+        if (status === 'ERROR') {
             await adapterProvider.sendText(numberID, 'Hola, ' + fullName + ' tu mascota: ' + petName + ' no pudo alimentarse esta ocasión por falta de alimento')
         }
-        if (status == 'OK') {
+        if (status === 'OK') {
             await adapterProvider.sendText(numberID, 'Hola, ' + fullName + ' tu mascota: ' + petName + ' se alimentó correctamente')
         }
         res.send({data: 'Estado de alimentación enviado a ' + fullName + ' al número: ' + phone + ' es: ' + status})
@@ -181,4 +176,5 @@ const main = async () => {
     })
 }
 
+QRPortal()
 main()
